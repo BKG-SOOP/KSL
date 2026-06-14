@@ -47,7 +47,7 @@
     }
 
     .app {
-      width: min(1440px, calc(100% - 32px));
+      width: min(1760px, calc(100% - 32px));
       margin: 0 auto;
       padding: 28px 0 48px;
     }
@@ -131,6 +131,7 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 12px;
       margin: 18px 0;
+      display: none;
     }
 
     .stat {
@@ -154,13 +155,13 @@
 
     .main-grid {
       display: grid;
-      grid-template-columns: 1fr 320px;
+      grid-template-columns: 1fr;
       gap: 18px;
       align-items: start;
     }
 
     .panel {
-      padding: 20px;
+      padding: 24px;
       border-radius: 24px;
       background: rgba(21, 24, 39, 0.80);
       border: 1px solid var(--line);
@@ -231,7 +232,7 @@
 
     .quad-row {
       display: grid;
-      grid-template-columns: 86px repeat(4, minmax(90px, 1fr));
+      grid-template-columns: 88px repeat(4, minmax(130px, 1fr));
       gap: 10px;
       align-items: center;
     }
@@ -322,7 +323,7 @@
 
     .duo-row {
       display: grid;
-      grid-template-columns: 58px minmax(78px, 1fr) minmax(78px, 1fr);
+      grid-template-columns: 62px minmax(120px, 1fr) minmax(120px, 1fr);
       gap: 8px;
       align-items: center;
       margin-top: 8px;
@@ -337,7 +338,7 @@
     .duo-row .slot {
       min-height: 52px;
       border-radius: 14px;
-      font-size: 16px;
+      font-size: 17px;
     }
 
     .empty-board {
@@ -354,6 +355,7 @@
     }
 
     .side-panel {
+      display: none;
       position: sticky;
       top: 18px;
       padding: 20px;
@@ -586,6 +588,16 @@
       border: 1px solid rgba(255,255,255,0.08);
     }
 
+
+
+    .panel.result-only {
+      width: 100%;
+    }
+
+    .result-board {
+      width: 100%;
+    }
+
     @media (max-width: 1100px) {
       .main-grid {
         grid-template-columns: 1fr;
@@ -593,11 +605,14 @@
       .side-panel {
         position: static;
       }
-      .duo-groups {
-        grid-template-columns: 1fr;
-      }
       .status-bar {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 900px) {
+      .duo-groups {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -635,12 +650,12 @@
   <div class="app">
     <header class="hero">
       <div class="title-wrap">
-        <h1>TEAM SHUFFLE</h1>
-        <p>티어별 밸런스 추첨기 · 4인팀 / 2인팀 지원</p>
+        <h1>KSL</h1>
+        <p>KIMSEONGTAE SOOP LEAGUE</p>
       </div>
       <div class="top-actions">
-        <button class="btn mode active" id="quadModeBtn" type="button">4인팀 모드</button>
-        <button class="btn mode" id="duoModeBtn" type="button">2인팀 모드</button>
+        <button class="btn mode active" id="quadModeBtn" type="button">스쿼드 모드</button>
+        <button class="btn mode" id="duoModeBtn" type="button">듀오 모드</button>
         <button class="btn primary" id="openInputBtn" type="button">참가자 입력</button>
       </div>
     </header>
@@ -665,11 +680,11 @@
     </section>
 
     <main class="main-grid">
-      <section class="panel">
+      <section class="panel result-only">
         <div class="panel-head">
           <div>
             <h2>결과 추첨판</h2>
-            <div class="hint" id="boardHint">참가자 입력 후 티어별 셔플 버튼을 눌러주세요.</div>
+            <div class="hint" id="boardHint">참가자 입력 후 라인별 셔플 버튼을 눌러주세요.</div>
           </div>
         </div>
 
@@ -685,7 +700,7 @@
 
       <aside class="side-panel">
         <h3>진행 상태</h3>
-        <div class="hint">각 티어가 확정되면 완료로 표시됩니다.</div>
+        <div class="hint">각 라인이 확정되면 완료로 표시됩니다.</div>
         <div class="progress-list" id="progressList"></div>
 
         <div class="standby">
@@ -737,9 +752,9 @@
     };
 
     const duoGroups = [
-      { title: "1티어 + 6티어", tiers: [1, 6] },
-      { title: "2티어 + 5티어", tiers: [2, 5] },
-      { title: "3티어 + 4티어", tiers: [3, 4] },
+      { title: "1라인 + 6라인", tiers: [1, 6] },
+      { title: "2라인 + 5라인", tiers: [2, 5] },
+      { title: "3라인 + 4라인", tiers: [3, 4] },
     ];
 
     const state = loadState();
@@ -865,8 +880,8 @@
       prepareResultsForCurrentMode();
       renderModeButtons();
       renderStats();
-      renderBoard();
       renderShuffleButtons();
+      renderBoard();
       renderProgress();
       renderStandby();
       saveState();
@@ -884,8 +899,8 @@
       els.teamStat.textContent = `${info.teamCount}팀`;
       els.doneStat.textContent = `${info.doneCount} / ${tierCountByMode[activeMode]}`;
       els.boardHint.textContent = info.teamCount > 0
-        ? "티어별 셔플 버튼을 누르면 해당 티어 칸만 애니메이션 후 확정됩니다."
-        : "참가자 입력 버튼을 눌러 티어별 명단을 먼저 저장해주세요.";
+        ? "라인별 셔플 버튼을 누르면 해당 라인 칸만 애니메이션 후 확정됩니다."
+        : "참가자 입력 버튼을 눌러 라인별 명단을 먼저 저장해주세요.";
     }
 
     function renderShuffleButtons() {
@@ -896,7 +911,7 @@
         btn.type = "button";
         btn.className = "tier-btn";
         btn.dataset.tier = tier;
-        btn.textContent = `${tier}티어 셔플`;
+        btn.textContent = `${tier}라인 셔플`;
         btn.disabled = isAnimating || getTargetSlotsForTier(tier).length === 0;
         btn.addEventListener("click", () => shuffleTier(tier));
         els.shuffleControls.appendChild(btn);
@@ -912,7 +927,7 @@
         empty.innerHTML = `
           <div>
             <strong>아직 생성 가능한 팀이 없습니다.</strong><br />
-            참가자 입력 팝업에서 각 티어별 이름을 저장하면 추첨판이 생성됩니다.
+            참가자 입력 팝업에서 각 라인별 이름을 저장하면 추첨판이 생성됩니다.
           </div>
         `;
         els.resultBoard.appendChild(empty);
@@ -1013,7 +1028,7 @@
         const item = document.createElement("div");
         item.className = "progress-item";
         item.innerHTML = `
-          <span>${tier}티어 <small>(${names.length}명 / 슬롯 ${targetCount}칸)</small></span>
+          <span>${tier}라인 <small>(${names.length}명 / 슬롯 ${targetCount}칸)</small></span>
           <span class="badge ${done ? "done" : targetCount > 0 ? "need" : ""}">${done ? "완료" : targetCount > 0 ? "대기" : "부족"}</span>
         `;
         els.progressList.appendChild(item);
@@ -1121,7 +1136,7 @@
         const teamCount = getQuadTeamCount();
         const tiers = state.modes[MODE.QUAD].tiers;
         return [1, 2, 3, 4].flatMap((tier) => {
-          return tiers[tier].slice(teamCount).map((name) => `${tier}티어 ${name}`);
+          return tiers[tier].slice(teamCount).map((name) => `${tier}라인 ${name}`);
         });
       }
 
@@ -1129,7 +1144,7 @@
       return duoGroups.flatMap((group) => {
         const count = getDuoGroupTeamCount(group.tiers[0], group.tiers[1]);
         return group.tiers.flatMap((tier) => {
-          return tiers[tier].slice(count).map((name) => `${tier}티어 ${name}`);
+          return tiers[tier].slice(count).map((name) => `${tier}라인 ${name}`);
         });
       });
     }
@@ -1159,11 +1174,11 @@
       const targets = getTargetSlotsForTier(tier);
 
       if (names.length === 0) {
-        showToast(`${tier}티어 참가자가 없습니다.`);
+        showToast(`${tier}라인 참가자가 없습니다.`);
         return;
       }
       if (targets.length === 0) {
-        showToast(`${tier}티어가 들어갈 팀 슬롯이 없습니다. 짝이 되는 티어 인원을 확인해주세요.`);
+        showToast(`${tier}라인이 들어갈 팀 슬롯이 없습니다. 짝이 되는 라인 인원을 확인해주세요.`);
         return;
       }
 
@@ -1241,8 +1256,8 @@
       const data = state.modes[activeMode];
       els.modalTitle.textContent = `${modeLabel[activeMode]} 참가자 입력`;
       els.modalHint.textContent = activeMode === MODE.QUAD
-        ? "4인팀은 1~4티어에서 각 1명씩 한 팀으로 구성됩니다."
-        : "2인팀은 1/6, 2/5, 3/4 티어 조합으로 팀이 구성됩니다.";
+        ? "4인팀은 1~4라인에서 각 1명씩 한 팀으로 구성됩니다."
+        : "2인팀은 1/6, 2/5, 3/4 라인 조합으로 팀이 구성됩니다.";
       els.tierInputGrid.className = `tier-input-grid ${activeMode}`;
       els.tierInputGrid.innerHTML = "";
 
@@ -1251,7 +1266,7 @@
         card.className = "input-card";
         card.innerHTML = `
           <label for="tierInput${tier}">
-            <span>${tier}티어</span>
+            <span>${tier}라인</span>
             <span class="count" id="tierCount${tier}">${data.tiers[tier].length}명</span>
           </label>
           <textarea id="tierInput${tier}" data-tier="${tier}" placeholder="한 줄에 한 명씩 입력">${escapeHtml(data.tiers[tier].join("\n"))}</textarea>
