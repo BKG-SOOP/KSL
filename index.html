@@ -1,0 +1,1454 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TEAM SHUFFLE</title>
+  <style>
+    :root {
+      --bg: #0d0f18;
+      --panel: #151827;
+      --panel-2: #1c2033;
+      --line: rgba(255, 255, 255, 0.11);
+      --text: #f6f7ff;
+      --muted: #a8aec8;
+      --accent: #8c5cff;
+      --accent-2: #ff62c7;
+      --good: #38e8b0;
+      --warn: #ffcd4b;
+      --danger: #ff5c7a;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(140, 92, 255, 0.28), transparent 32%),
+        radial-gradient(circle at top right, rgba(255, 98, 199, 0.20), transparent 30%),
+        linear-gradient(180deg, #0d0f18 0%, #10121d 100%);
+    }
+
+    button,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(1440px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      background: rgba(21, 24, 39, 0.76);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .title-wrap h1 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 54px);
+      letter-spacing: -0.06em;
+      line-height: 1;
+    }
+
+    .title-wrap p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn {
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 999px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-color: rgba(255, 255, 255, 0.20);
+      font-weight: 800;
+    }
+
+    .btn.mode.active {
+      color: #ffffff;
+      background: rgba(140, 92, 255, 0.28);
+      border-color: rgba(140, 92, 255, 0.75);
+      box-shadow: 0 0 0 3px rgba(140, 92, 255, 0.16);
+    }
+
+    .btn.danger {
+      color: #ffe9ee;
+      background: rgba(255, 92, 122, 0.12);
+      border-color: rgba(255, 92, 122, 0.32);
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.46;
+      transform: none;
+    }
+
+    .status-bar {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: var(--radius);
+      background: rgba(21, 24, 39, 0.72);
+      border: 1px solid var(--line);
+    }
+
+    .stat .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .stat .value {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 20px;
+      border-radius: 24px;
+      background: rgba(21, 24, 39, 0.80);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .panel-head h2,
+    .side-panel h3 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: -0.04em;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .shuffle-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 0 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .tier-btn {
+      min-width: 116px;
+      height: 46px;
+      border-radius: 14px;
+      color: var(--text);
+      font-weight: 900;
+      background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+      border: 1px solid rgba(255,255,255,0.12);
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+
+    .tier-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(140, 92, 255, 0.55);
+    }
+
+    .tier-btn.active {
+      border-color: rgba(255, 98, 199, 0.85);
+      box-shadow: 0 0 0 4px rgba(255, 98, 199, 0.13), 0 0 26px rgba(255, 98, 199, 0.20);
+    }
+
+    .result-board {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .quad-table {
+      display: grid;
+      gap: 10px;
+    }
+
+    .quad-row {
+      display: grid;
+      grid-template-columns: 86px repeat(4, minmax(90px, 1fr));
+      gap: 10px;
+      align-items: center;
+    }
+
+    .row-label,
+    .slot {
+      min-height: 58px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 10px 12px;
+    }
+
+    .row-label {
+      font-weight: 900;
+      color: #ffffff;
+      background: linear-gradient(135deg, rgba(140,92,255,0.35), rgba(255,98,199,0.20));
+      border: 1px solid rgba(255, 255, 255, 0.13);
+    }
+
+    .slot {
+      position: relative;
+      overflow: hidden;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      background: rgba(255, 255, 255, 0.075);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      color: rgba(255, 255, 255, 0.96);
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .slot.waiting {
+      color: rgba(255, 255, 255, 0.45);
+      font-weight: 700;
+    }
+
+    .slot.spinning {
+      color: #ffffff;
+      background: rgba(140, 92, 255, 0.22);
+      border-color: rgba(140, 92, 255, 0.72);
+      box-shadow: inset 0 0 26px rgba(140, 92, 255, 0.18);
+    }
+
+    .slot.locked {
+      background: rgba(56, 232, 176, 0.12);
+      border-color: rgba(56, 232, 176, 0.34);
+    }
+
+    .slot.pop {
+      animation: pop 0.34s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(1); }
+      45% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    .duo-groups {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .duo-card {
+      min-width: 0;
+      padding: 14px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+    }
+
+    .duo-card-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      margin-bottom: 12px;
+      border-radius: 999px;
+      font-weight: 950;
+      color: #ffffff;
+      background: linear-gradient(135deg, rgba(140, 92, 255, 0.38), rgba(255, 98, 199, 0.22));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .duo-row {
+      display: grid;
+      grid-template-columns: 58px minmax(78px, 1fr) minmax(78px, 1fr);
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .duo-row .row-label {
+      min-height: 52px;
+      border-radius: 14px;
+      font-size: 14px;
+    }
+
+    .duo-row .slot {
+      min-height: 52px;
+      border-radius: 14px;
+      font-size: 16px;
+    }
+
+    .empty-board {
+      display: flex;
+      min-height: 240px;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed rgba(255, 255, 255, 0.18);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.035);
+      line-height: 1.65;
+    }
+
+    .side-panel {
+      position: sticky;
+      top: 18px;
+      padding: 20px;
+      border-radius: 24px;
+      background: rgba(21, 24, 39, 0.80);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .progress-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .progress-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 54px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--muted);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .badge.done {
+      color: #eafff8;
+      background: rgba(56, 232, 176, 0.14);
+      border: 1px solid rgba(56, 232, 176, 0.22);
+    }
+
+    .badge.need {
+      color: #fff6db;
+      background: rgba(255, 205, 75, 0.13);
+      border: 1px solid rgba(255, 205, 75, 0.22);
+    }
+
+    .standby {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .standby-title {
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .standby-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .chip {
+      padding: 6px 9px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .footer-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      z-index: 50;
+      transform: translateX(-50%) translateY(30px);
+      opacity: 0;
+      pointer-events: none;
+      padding: 12px 16px;
+      border-radius: 999px;
+      background: rgba(12, 14, 24, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.64);
+      backdrop-filter: blur(10px);
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(1120px, 100%);
+      max-height: min(820px, calc(100vh - 40px));
+      overflow: auto;
+      border-radius: 26px;
+      background: #151827;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      box-shadow: 0 34px 120px rgba(0, 0, 0, 0.55);
+    }
+
+    .modal-head,
+    .modal-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-foot {
+      border-top: 1px solid var(--line);
+      border-bottom: 0;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .modal-head h2 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.04em;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .tier-input-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .tier-input-grid.quad {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .tier-input-grid.duo {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .input-card {
+      min-width: 0;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.09);
+    }
+
+    .input-card label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-weight: 950;
+    }
+
+    .count {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      resize: vertical;
+      padding: 12px;
+      border-radius: 14px;
+      color: var(--text);
+      background: rgba(0,0,0,0.20);
+      border: 1px solid rgba(255,255,255,0.12);
+      outline: none;
+      line-height: 1.55;
+    }
+
+    textarea:focus {
+      border-color: rgba(140, 92, 255, 0.75);
+      box-shadow: 0 0 0 3px rgba(140, 92, 255, 0.14);
+    }
+
+    .modal-summary {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .summary-pill {
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    @media (max-width: 1100px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+      .side-panel {
+        position: static;
+      }
+      .duo-groups {
+        grid-template-columns: 1fr;
+      }
+      .status-bar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .hero {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .top-actions {
+        justify-content: flex-start;
+      }
+      .status-bar {
+        grid-template-columns: 1fr;
+      }
+      .quad-row {
+        grid-template-columns: 1fr;
+      }
+      .tier-input-grid.quad,
+      .tier-input-grid.duo {
+        grid-template-columns: 1fr;
+      }
+      .modal-head,
+      .modal-foot {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .modal-foot .btn,
+      .modal-head .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <div class="title-wrap">
+        <h1>TEAM SHUFFLE</h1>
+        <p>티어별 밸런스 추첨기 · 4인팀 / 2인팀 지원</p>
+      </div>
+      <div class="top-actions">
+        <button class="btn mode active" id="quadModeBtn" type="button">4인팀 모드</button>
+        <button class="btn mode" id="duoModeBtn" type="button">2인팀 모드</button>
+        <button class="btn primary" id="openInputBtn" type="button">참가자 입력</button>
+      </div>
+    </header>
+
+    <section class="status-bar" aria-label="현재 상태">
+      <div class="stat">
+        <div class="label">현재 모드</div>
+        <div class="value" id="modeStat">4인팀</div>
+      </div>
+      <div class="stat">
+        <div class="label">총 인원</div>
+        <div class="value" id="totalStat">0명</div>
+      </div>
+      <div class="stat">
+        <div class="label">생성 가능 팀</div>
+        <div class="value" id="teamStat">0팀</div>
+      </div>
+      <div class="stat">
+        <div class="label">진행 상황</div>
+        <div class="value" id="doneStat">0 / 4</div>
+      </div>
+    </section>
+
+    <main class="main-grid">
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>결과 추첨판</h2>
+            <div class="hint" id="boardHint">참가자 입력 후 티어별 셔플 버튼을 눌러주세요.</div>
+          </div>
+        </div>
+
+        <div class="shuffle-controls" id="shuffleControls"></div>
+        <div class="result-board" id="resultBoard"></div>
+
+        <div class="footer-actions">
+          <button class="btn primary" id="copyBtn" type="button">결과 복사</button>
+          <button class="btn" id="resetResultBtn" type="button">현재 모드 결과 초기화</button>
+          <button class="btn danger" id="resetAllBtn" type="button">전체 초기화</button>
+        </div>
+      </section>
+
+      <aside class="side-panel">
+        <h3>진행 상태</h3>
+        <div class="hint">각 티어가 확정되면 완료로 표시됩니다.</div>
+        <div class="progress-list" id="progressList"></div>
+
+        <div class="standby">
+          <div class="standby-title">대기자 / 남는 인원</div>
+          <div class="standby-list" id="standbyList"></div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="inputModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h2 id="modalTitle">참가자 입력</h2>
+          <div class="hint" id="modalHint">한 줄에 한 명씩 입력하세요.</div>
+        </div>
+        <button class="btn" id="closeModalBtn" type="button">닫기</button>
+      </div>
+      <div class="modal-body">
+        <div class="tier-input-grid" id="tierInputGrid"></div>
+        <div class="modal-summary" id="modalSummary"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn danger" id="clearInputsBtn" type="button">입력 초기화</button>
+        <button class="btn primary" id="saveInputsBtn" type="button">저장하고 닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = "tierTeamShuffle.v1";
+
+    const MODE = {
+      QUAD: "quad",
+      DUO: "duo",
+    };
+
+    const modeLabel = {
+      [MODE.QUAD]: "4인팀",
+      [MODE.DUO]: "2인팀",
+    };
+
+    const tierCountByMode = {
+      [MODE.QUAD]: 4,
+      [MODE.DUO]: 6,
+    };
+
+    const duoGroups = [
+      { title: "1티어 + 6티어", tiers: [1, 6] },
+      { title: "2티어 + 5티어", tiers: [2, 5] },
+      { title: "3티어 + 4티어", tiers: [3, 4] },
+    ];
+
+    const state = loadState();
+    let activeMode = state.activeMode || MODE.QUAD;
+    let isAnimating = false;
+
+    const els = {
+      quadModeBtn: document.getElementById("quadModeBtn"),
+      duoModeBtn: document.getElementById("duoModeBtn"),
+      openInputBtn: document.getElementById("openInputBtn"),
+      shuffleControls: document.getElementById("shuffleControls"),
+      resultBoard: document.getElementById("resultBoard"),
+      progressList: document.getElementById("progressList"),
+      standbyList: document.getElementById("standbyList"),
+      modeStat: document.getElementById("modeStat"),
+      totalStat: document.getElementById("totalStat"),
+      teamStat: document.getElementById("teamStat"),
+      doneStat: document.getElementById("doneStat"),
+      boardHint: document.getElementById("boardHint"),
+      copyBtn: document.getElementById("copyBtn"),
+      resetResultBtn: document.getElementById("resetResultBtn"),
+      resetAllBtn: document.getElementById("resetAllBtn"),
+      inputModal: document.getElementById("inputModal"),
+      modalTitle: document.getElementById("modalTitle"),
+      modalHint: document.getElementById("modalHint"),
+      tierInputGrid: document.getElementById("tierInputGrid"),
+      modalSummary: document.getElementById("modalSummary"),
+      closeModalBtn: document.getElementById("closeModalBtn"),
+      clearInputsBtn: document.getElementById("clearInputsBtn"),
+      saveInputsBtn: document.getElementById("saveInputsBtn"),
+      toast: document.getElementById("toast"),
+    };
+
+    boot();
+
+    function boot() {
+      els.quadModeBtn.addEventListener("click", () => switchMode(MODE.QUAD));
+      els.duoModeBtn.addEventListener("click", () => switchMode(MODE.DUO));
+      els.openInputBtn.addEventListener("click", openInputModal);
+      els.closeModalBtn.addEventListener("click", closeInputModal);
+      els.inputModal.addEventListener("click", (event) => {
+        if (event.target === els.inputModal) closeInputModal();
+      });
+      els.saveInputsBtn.addEventListener("click", saveInputsFromModal);
+      els.clearInputsBtn.addEventListener("click", clearInputsInModal);
+      els.copyBtn.addEventListener("click", copyResult);
+      els.resetResultBtn.addEventListener("click", resetCurrentResult);
+      els.resetAllBtn.addEventListener("click", resetAll);
+
+      renderAll();
+    }
+
+    function getEmptyModeData(mode) {
+      const tierCount = tierCountByMode[mode];
+      const tiers = {};
+      const doneTiers = {};
+      for (let i = 1; i <= tierCount; i++) {
+        tiers[i] = [];
+        doneTiers[i] = false;
+      }
+      return {
+        tiers,
+        results: mode === MODE.QUAD ? [] : createEmptyDuoResults(),
+        doneTiers,
+      };
+    }
+
+    function loadState() {
+      const fallback = {
+        activeMode: MODE.QUAD,
+        modes: {
+          [MODE.QUAD]: getEmptyModeData(MODE.QUAD),
+          [MODE.DUO]: getEmptyModeData(MODE.DUO),
+        },
+      };
+
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return fallback;
+        const parsed = JSON.parse(raw);
+        return normalizeState(parsed);
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function normalizeState(input) {
+      const normalized = {
+        activeMode: input.activeMode === MODE.DUO ? MODE.DUO : MODE.QUAD,
+        modes: {
+          [MODE.QUAD]: getEmptyModeData(MODE.QUAD),
+          [MODE.DUO]: getEmptyModeData(MODE.DUO),
+        },
+      };
+
+      [MODE.QUAD, MODE.DUO].forEach((mode) => {
+        const source = input.modes?.[mode];
+        if (!source) return;
+        const tierCount = tierCountByMode[mode];
+        for (let i = 1; i <= tierCount; i++) {
+          normalized.modes[mode].tiers[i] = Array.isArray(source.tiers?.[i]) ? source.tiers[i].filter(Boolean) : [];
+          normalized.modes[mode].doneTiers[i] = Boolean(source.doneTiers?.[i]);
+        }
+        normalized.modes[mode].results = source.results || normalized.modes[mode].results;
+      });
+
+      return normalized;
+    }
+
+    function saveState() {
+      state.activeMode = activeMode;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function switchMode(mode) {
+      if (isAnimating || activeMode === mode) return;
+      activeMode = mode;
+      saveState();
+      renderAll();
+    }
+
+    function renderAll() {
+      prepareResultsForCurrentMode();
+      renderModeButtons();
+      renderStats();
+      renderBoard();
+      renderShuffleButtons();
+      renderProgress();
+      renderStandby();
+      saveState();
+    }
+
+    function renderModeButtons() {
+      els.quadModeBtn.classList.toggle("active", activeMode === MODE.QUAD);
+      els.duoModeBtn.classList.toggle("active", activeMode === MODE.DUO);
+    }
+
+    function renderStats() {
+      const info = getModeInfo(activeMode);
+      els.modeStat.textContent = modeLabel[activeMode];
+      els.totalStat.textContent = `${info.total}명`;
+      els.teamStat.textContent = `${info.teamCount}팀`;
+      els.doneStat.textContent = `${info.doneCount} / ${tierCountByMode[activeMode]}`;
+      els.boardHint.textContent = info.teamCount > 0
+        ? "티어별 셔플 버튼을 누르면 해당 티어 칸만 애니메이션 후 확정됩니다."
+        : "참가자 입력 버튼을 눌러 티어별 명단을 먼저 저장해주세요.";
+    }
+
+    function renderShuffleButtons() {
+      const tierCount = tierCountByMode[activeMode];
+      els.shuffleControls.innerHTML = "";
+      for (let tier = 1; tier <= tierCount; tier++) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "tier-btn";
+        btn.dataset.tier = tier;
+        btn.textContent = `${tier}티어 셔플`;
+        btn.disabled = isAnimating || getTargetSlotsForTier(tier).length === 0;
+        btn.addEventListener("click", () => shuffleTier(tier));
+        els.shuffleControls.appendChild(btn);
+      }
+    }
+
+    function renderBoard() {
+      els.resultBoard.innerHTML = "";
+      const info = getModeInfo(activeMode);
+      if (info.teamCount === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty-board";
+        empty.innerHTML = `
+          <div>
+            <strong>아직 생성 가능한 팀이 없습니다.</strong><br />
+            참가자 입력 팝업에서 각 티어별 이름을 저장하면 추첨판이 생성됩니다.
+          </div>
+        `;
+        els.resultBoard.appendChild(empty);
+        return;
+      }
+
+      if (activeMode === MODE.QUAD) renderQuadBoard();
+      if (activeMode === MODE.DUO) renderDuoBoard();
+    }
+
+    function renderQuadBoard() {
+      const data = state.modes[MODE.QUAD];
+      const wrapper = document.createElement("div");
+      wrapper.className = "quad-table";
+
+      data.results.forEach((team, teamIndex) => {
+        const row = document.createElement("div");
+        row.className = "quad-row";
+        row.innerHTML = `<div class="row-label">${teamIndex + 1}팀</div>`;
+        for (let tier = 1; tier <= 4; tier++) {
+          row.appendChild(createSlot({
+            tier,
+            teamIndex,
+            text: team[tier] || "대기",
+          }));
+        }
+        wrapper.appendChild(row);
+      });
+
+      els.resultBoard.appendChild(wrapper);
+    }
+
+    function renderDuoBoard() {
+      const data = state.modes[MODE.DUO];
+      const wrapper = document.createElement("div");
+      wrapper.className = "duo-groups";
+
+      let teamNumber = 1;
+      duoGroups.forEach((group, groupIndex) => {
+        const card = document.createElement("div");
+        card.className = "duo-card";
+        card.innerHTML = `<div class="duo-card-title">${group.title}</div>`;
+
+        const rows = data.results[groupIndex] || [];
+        if (rows.length === 0) {
+          const empty = document.createElement("div");
+          empty.className = "empty-board";
+          empty.style.minHeight = "120px";
+          empty.textContent = "대기";
+          card.appendChild(empty);
+        } else {
+          rows.forEach((team, rowIndex) => {
+            const row = document.createElement("div");
+            row.className = "duo-row";
+            row.innerHTML = `<div class="row-label">${teamNumber}팀</div>`;
+
+            group.tiers.forEach((tier) => {
+              row.appendChild(createSlot({
+                tier,
+                groupIndex,
+                rowIndex,
+                text: team[tier] || "대기",
+              }));
+            });
+
+            teamNumber++;
+            card.appendChild(row);
+          });
+        }
+
+        wrapper.appendChild(card);
+      });
+
+      els.resultBoard.appendChild(wrapper);
+    }
+
+    function createSlot({ tier, teamIndex, groupIndex, rowIndex, text }) {
+      const slot = document.createElement("div");
+      const isWaiting = !text || text === "대기";
+      slot.className = `slot ${isWaiting ? "waiting" : "locked"}`;
+      slot.dataset.tier = tier;
+      if (typeof teamIndex === "number") slot.dataset.teamIndex = teamIndex;
+      if (typeof groupIndex === "number") slot.dataset.groupIndex = groupIndex;
+      if (typeof rowIndex === "number") slot.dataset.rowIndex = rowIndex;
+      slot.textContent = text || "대기";
+      return slot;
+    }
+
+    function renderProgress() {
+      const data = state.modes[activeMode];
+      const tierCount = tierCountByMode[activeMode];
+      els.progressList.innerHTML = "";
+
+      for (let tier = 1; tier <= tierCount; tier++) {
+        const names = data.tiers[tier] || [];
+        const targetCount = getTargetSlotsForTier(tier).length;
+        const done = Boolean(data.doneTiers[tier]);
+        const item = document.createElement("div");
+        item.className = "progress-item";
+        item.innerHTML = `
+          <span>${tier}티어 <small>(${names.length}명 / 슬롯 ${targetCount}칸)</small></span>
+          <span class="badge ${done ? "done" : targetCount > 0 ? "need" : ""}">${done ? "완료" : targetCount > 0 ? "대기" : "부족"}</span>
+        `;
+        els.progressList.appendChild(item);
+      }
+    }
+
+    function renderStandby() {
+      const standby = getStandbyList(activeMode);
+      els.standbyList.innerHTML = "";
+      if (standby.length === 0) {
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.textContent = "없음";
+        els.standbyList.appendChild(chip);
+        return;
+      }
+
+      standby.forEach((item) => {
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.textContent = item;
+        els.standbyList.appendChild(chip);
+      });
+    }
+
+    function prepareResultsForCurrentMode() {
+      if (activeMode === MODE.QUAD) prepareQuadResults();
+      if (activeMode === MODE.DUO) prepareDuoResults();
+    }
+
+    function prepareQuadResults() {
+      const data = state.modes[MODE.QUAD];
+      const teamCount = getQuadTeamCount();
+      const nextResults = [];
+
+      for (let i = 0; i < teamCount; i++) {
+        const existing = data.results[i] || {};
+        nextResults.push({
+          1: existing[1] || "",
+          2: existing[2] || "",
+          3: existing[3] || "",
+          4: existing[4] || "",
+        });
+      }
+
+      data.results = nextResults;
+      for (let tier = 1; tier <= 4; tier++) {
+        data.doneTiers[tier] = data.results.length > 0 && data.results.every((team) => Boolean(team[tier]));
+      }
+    }
+
+    function prepareDuoResults() {
+      const data = state.modes[MODE.DUO];
+      const nextResults = createEmptyDuoResults();
+
+      duoGroups.forEach((group, groupIndex) => {
+        const count = getDuoGroupTeamCount(group.tiers[0], group.tiers[1]);
+        for (let i = 0; i < count; i++) {
+          const existing = data.results[groupIndex]?.[i] || {};
+          nextResults[groupIndex].push({
+            [group.tiers[0]]: existing[group.tiers[0]] || "",
+            [group.tiers[1]]: existing[group.tiers[1]] || "",
+          });
+        }
+      });
+
+      data.results = nextResults;
+      for (let tier = 1; tier <= 6; tier++) {
+        const targets = getTargetModelPositionsForTier(tier);
+        data.doneTiers[tier] = targets.length > 0 && targets.every((pos) => {
+          return Boolean(data.results[pos.groupIndex]?.[pos.rowIndex]?.[tier]);
+        });
+      }
+    }
+
+    function createEmptyDuoResults() {
+      return [[], [], []];
+    }
+
+    function getModeInfo(mode) {
+      const data = state.modes[mode];
+      const tierCount = tierCountByMode[mode];
+      const total = Object.values(data.tiers).reduce((sum, list) => sum + list.length, 0);
+      const teamCount = mode === MODE.QUAD ? getQuadTeamCount() : getDuoTotalTeamCount();
+      const doneCount = Object.values(data.doneTiers).filter(Boolean).length;
+      return { total, teamCount, doneCount, tierCount };
+    }
+
+    function getQuadTeamCount() {
+      const tiers = state.modes[MODE.QUAD].tiers;
+      return Math.min(tiers[1].length, tiers[2].length, tiers[3].length, tiers[4].length);
+    }
+
+    function getDuoGroupTeamCount(leftTier, rightTier) {
+      const tiers = state.modes[MODE.DUO].tiers;
+      return Math.min(tiers[leftTier].length, tiers[rightTier].length);
+    }
+
+    function getDuoTotalTeamCount() {
+      return duoGroups.reduce((sum, group) => sum + getDuoGroupTeamCount(group.tiers[0], group.tiers[1]), 0);
+    }
+
+    function getStandbyList(mode) {
+      if (mode === MODE.QUAD) {
+        const teamCount = getQuadTeamCount();
+        const tiers = state.modes[MODE.QUAD].tiers;
+        return [1, 2, 3, 4].flatMap((tier) => {
+          return tiers[tier].slice(teamCount).map((name) => `${tier}티어 ${name}`);
+        });
+      }
+
+      const tiers = state.modes[MODE.DUO].tiers;
+      return duoGroups.flatMap((group) => {
+        const count = getDuoGroupTeamCount(group.tiers[0], group.tiers[1]);
+        return group.tiers.flatMap((tier) => {
+          return tiers[tier].slice(count).map((name) => `${tier}티어 ${name}`);
+        });
+      });
+    }
+
+    function getTargetSlotsForTier(tier) {
+      return Array.from(document.querySelectorAll(`.slot[data-tier="${tier}"]`));
+    }
+
+    function getTargetModelPositionsForTier(tier) {
+      if (activeMode === MODE.QUAD) {
+        return state.modes[MODE.QUAD].results.map((_, teamIndex) => ({ teamIndex }));
+      }
+
+      const groupIndex = duoGroups.findIndex((group) => group.tiers.includes(Number(tier)));
+      if (groupIndex < 0) return [];
+      return (state.modes[MODE.DUO].results[groupIndex] || []).map((_, rowIndex) => ({ groupIndex, rowIndex }));
+    }
+
+    async function shuffleTier(tier) {
+      if (isAnimating) return;
+
+      prepareResultsForCurrentMode();
+      renderBoard();
+
+      const data = state.modes[activeMode];
+      const names = data.tiers[tier] || [];
+      const targets = getTargetSlotsForTier(tier);
+
+      if (names.length === 0) {
+        showToast(`${tier}티어 참가자가 없습니다.`);
+        return;
+      }
+      if (targets.length === 0) {
+        showToast(`${tier}티어가 들어갈 팀 슬롯이 없습니다. 짝이 되는 티어 인원을 확인해주세요.`);
+        return;
+      }
+
+      const finalNames = shuffleArray(names).slice(0, targets.length);
+      isAnimating = true;
+      setButtonsDisabled(true);
+      setActiveTierButton(tier, true);
+
+      const intervals = targets.map((slot) => {
+        slot.classList.remove("waiting", "locked", "pop");
+        slot.classList.add("spinning");
+        return setInterval(() => {
+          slot.textContent = names[randomInt(0, names.length - 1)];
+        }, 65);
+      });
+
+      await sleep(700);
+
+      for (let i = 0; i < targets.length; i++) {
+        await sleep(260);
+        clearInterval(intervals[i]);
+        targets[i].textContent = finalNames[i];
+        targets[i].classList.remove("spinning", "waiting");
+        targets[i].classList.add("locked", "pop");
+        writeResultToState(tier, i, finalNames[i]);
+      }
+
+      data.doneTiers[tier] = true;
+      isAnimating = false;
+      setActiveTierButton(tier, false);
+      renderStats();
+      renderProgress();
+      renderStandby();
+      setButtonsDisabled(false);
+      saveState();
+    }
+
+    function writeResultToState(tier, targetIndex, name) {
+      if (activeMode === MODE.QUAD) {
+        const row = state.modes[MODE.QUAD].results[targetIndex];
+        if (row) row[tier] = name;
+        return;
+      }
+
+      const groupIndex = duoGroups.findIndex((group) => group.tiers.includes(Number(tier)));
+      const row = state.modes[MODE.DUO].results[groupIndex]?.[targetIndex];
+      if (row) row[tier] = name;
+    }
+
+    function setButtonsDisabled(disabled) {
+      document.querySelectorAll("button").forEach((button) => {
+        if (button.id === "closeModalBtn") return;
+        button.disabled = disabled;
+      });
+      if (!disabled) renderShuffleButtons();
+    }
+
+    function setActiveTierButton(tier, active) {
+      const button = document.querySelector(`.tier-btn[data-tier="${tier}"]`);
+      if (button) button.classList.toggle("active", active);
+    }
+
+    function openInputModal() {
+      if (isAnimating) return;
+      renderInputModal();
+      els.inputModal.classList.add("open");
+    }
+
+    function closeInputModal() {
+      els.inputModal.classList.remove("open");
+    }
+
+    function renderInputModal() {
+      const tierCount = tierCountByMode[activeMode];
+      const data = state.modes[activeMode];
+      els.modalTitle.textContent = `${modeLabel[activeMode]} 참가자 입력`;
+      els.modalHint.textContent = activeMode === MODE.QUAD
+        ? "4인팀은 1~4티어에서 각 1명씩 한 팀으로 구성됩니다."
+        : "2인팀은 1/6, 2/5, 3/4 티어 조합으로 팀이 구성됩니다.";
+      els.tierInputGrid.className = `tier-input-grid ${activeMode}`;
+      els.tierInputGrid.innerHTML = "";
+
+      for (let tier = 1; tier <= tierCount; tier++) {
+        const card = document.createElement("div");
+        card.className = "input-card";
+        card.innerHTML = `
+          <label for="tierInput${tier}">
+            <span>${tier}티어</span>
+            <span class="count" id="tierCount${tier}">${data.tiers[tier].length}명</span>
+          </label>
+          <textarea id="tierInput${tier}" data-tier="${tier}" placeholder="한 줄에 한 명씩 입력">${escapeHtml(data.tiers[tier].join("\n"))}</textarea>
+        `;
+        els.tierInputGrid.appendChild(card);
+      }
+
+      els.tierInputGrid.querySelectorAll("textarea").forEach((textarea) => {
+        textarea.addEventListener("input", updateModalSummary);
+      });
+
+      updateModalSummary();
+    }
+
+    function updateModalSummary() {
+      const temp = readInputsFromModal();
+      const total = Object.values(temp).reduce((sum, list) => sum + list.length, 0);
+      let teamCount = 0;
+
+      if (activeMode === MODE.QUAD) {
+        teamCount = Math.min(temp[1].length, temp[2].length, temp[3].length, temp[4].length);
+      } else {
+        teamCount = Math.min(temp[1].length, temp[6].length)
+          + Math.min(temp[2].length, temp[5].length)
+          + Math.min(temp[3].length, temp[4].length);
+      }
+
+      for (const [tier, list] of Object.entries(temp)) {
+        const countEl = document.getElementById(`tierCount${tier}`);
+        if (countEl) countEl.textContent = `${list.length}명`;
+      }
+
+      els.modalSummary.innerHTML = `
+        <span class="summary-pill">총 인원: ${total}명</span>
+        <span class="summary-pill">생성 가능 팀: ${teamCount}팀</span>
+        <span class="summary-pill">저장 시 기존 결과는 초기화됩니다.</span>
+      `;
+    }
+
+    function readInputsFromModal() {
+      const result = {};
+      els.tierInputGrid.querySelectorAll("textarea").forEach((textarea) => {
+        const tier = Number(textarea.dataset.tier);
+        result[tier] = parseNames(textarea.value);
+      });
+      return result;
+    }
+
+    function saveInputsFromModal() {
+      const nextTiers = readInputsFromModal();
+      const data = state.modes[activeMode];
+      const tierCount = tierCountByMode[activeMode];
+
+      for (let tier = 1; tier <= tierCount; tier++) {
+        data.tiers[tier] = nextTiers[tier] || [];
+        data.doneTiers[tier] = false;
+      }
+      data.results = activeMode === MODE.QUAD ? [] : createEmptyDuoResults();
+
+      closeInputModal();
+      renderAll();
+      showToast("참가자 명단을 저장했습니다.");
+    }
+
+    function clearInputsInModal() {
+      els.tierInputGrid.querySelectorAll("textarea").forEach((textarea) => {
+        textarea.value = "";
+      });
+      updateModalSummary();
+    }
+
+    function resetCurrentResult() {
+      if (isAnimating) return;
+      const data = state.modes[activeMode];
+      const tierCount = tierCountByMode[activeMode];
+      for (let tier = 1; tier <= tierCount; tier++) data.doneTiers[tier] = false;
+      data.results = activeMode === MODE.QUAD ? [] : createEmptyDuoResults();
+      renderAll();
+      showToast("현재 모드 결과를 초기화했습니다.");
+    }
+
+    function resetAll() {
+      if (isAnimating) return;
+      const ok = confirm("참가자 입력과 결과를 모두 초기화할까요?");
+      if (!ok) return;
+      state.modes[MODE.QUAD] = getEmptyModeData(MODE.QUAD);
+      state.modes[MODE.DUO] = getEmptyModeData(MODE.DUO);
+      activeMode = MODE.QUAD;
+      renderAll();
+      showToast("전체 초기화가 완료되었습니다.");
+    }
+
+    async function copyResult() {
+      const text = buildCopyText();
+      if (!text) {
+        showToast("복사할 결과가 없습니다.");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("결과를 복사했습니다.");
+      } catch (error) {
+        fallbackCopy(text);
+        showToast("결과를 복사했습니다.");
+      }
+    }
+
+    function buildCopyText() {
+      const info = getModeInfo(activeMode);
+      if (info.teamCount === 0) return "";
+
+      if (activeMode === MODE.QUAD) {
+        const lines = ["[4인팀 셔플 결과]", ""];
+        state.modes[MODE.QUAD].results.forEach((team, index) => {
+          lines.push(`${index + 1}팀: ${[1, 2, 3, 4].map((tier) => team[tier] || "대기").join(" / ")}`);
+        });
+        const standby = getStandbyList(MODE.QUAD);
+        if (standby.length) lines.push("", `대기자: ${standby.join(", ")}`);
+        return lines.join("\n");
+      }
+
+      const lines = ["[2인팀 셔플 결과]", ""];
+      let teamNumber = 1;
+      duoGroups.forEach((group, groupIndex) => {
+        const rows = state.modes[MODE.DUO].results[groupIndex] || [];
+        if (rows.length === 0) return;
+        lines.push(`[${group.title}]`);
+        rows.forEach((team) => {
+          lines.push(`${teamNumber}팀: ${group.tiers.map((tier) => team[tier] || "대기").join(" / ")}`);
+          teamNumber++;
+        });
+        lines.push("");
+      });
+      const standby = getStandbyList(MODE.DUO);
+      if (standby.length) lines.push(`대기자: ${standby.join(", ")}`);
+      return lines.join("\n").trim();
+    }
+
+    function fallbackCopy(text) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      textarea.remove();
+    }
+
+    function parseNames(value) {
+      const seen = new Set();
+      return value
+        .split("\n")
+        .map((name) => name.trim())
+        .filter(Boolean)
+        .filter((name) => {
+          if (seen.has(name)) return false;
+          seen.add(name);
+          return true;
+        });
+    }
+
+    function shuffleArray(list) {
+      const copy = [...list];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function sleep(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        els.toast.classList.remove("show");
+      }, 1800);
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  </script>
+</body>
+</html>
